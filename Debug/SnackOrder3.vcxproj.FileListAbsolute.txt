@@ -1,0 +1,2 @@
+Z:\事例研\SnackOrder3\Debug\SnackOrder3.exe
+Z:\事例研\SnackOrder3\Debug\SnackOrder3.pdb
