@@ -140,10 +140,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Dataset.cpp" />
-    <ClCompile Include="population.cpp" />
+    <ClCompile Include="Population.cpp" />
     <ClCompile Include="SnackOrder3.cpp" />
     <ClCompile Include="Student.cpp" />
-    <ClCompile Include="whale.cpp" />
+    <ClCompile Include="Whale.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="data.csv" />
@@ -151,9 +151,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dataset.h" />
-    <ClInclude Include="population.h" />
+    <ClInclude Include="Population.h" />
     <ClInclude Include="Student.h" />
-    <ClInclude Include="whale.h" />
+    <ClInclude Include="Whale.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

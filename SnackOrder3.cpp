@@ -19,13 +19,16 @@ int main()
 	//data.csvの内容をpopにぶち込む
 	pop = new Population(dataFname);
 
-	pop->a = 2.0;
+	//この時点でwhaleが読み込めてないのがおかしい
+	pop->aValue = 2.0;
 	for (t = 1; t <= TIME_MAX; t++) {
-		pop->move(pop->a);
+		pop->move(pop->aValue);
 		//ステップごとにaを減少させる
-		pop->a = pop->decrease(pop->a);
-		//printf("%d秒後：最良評価値%f\n", t, pop->bestValue);
+		pop->aValue = pop->decrease(pop->aValue);
+		pop->saveBestPos();
+		printf("%d秒後：最良評価値%f\n", t, pop->bestValue);
 	}
+
 
 	//お菓子ごとの個数，最大補助をresult.csvに書き込む
 	pop->printResult(resultFname);
@@ -34,3 +37,5 @@ int main()
 	clock_t end = clock();
 	printf("time = %f sec.\n", (double)(end - start) / CLOCKS_PER_SEC);
 }
+
+

@@ -1,10 +1,10 @@
-#include "population.h"
+#include "Population.h"
 
 //コンストラクタ
 Population::Population(char* filename)
 {
 	int i, best;
-
+	aValue = 0.0;
 	dataset = new Dataset(filename);
 	Whale::dataset = dataset;
 	Whale::posLen = dataset->snackTypeNum + 1;
@@ -21,14 +21,20 @@ Population::Population(char* filename)
 		}
 	}
 
+
 	bestPos = new double[Whale::posLen];
 
 	for (i = 0; i < Whale::posLen; i++)
 	{
 		bestPos[i] = whale[best]->pos[i];
+
 	}
 
 	bestValue = whale[best]->value;
+
+	
+		//printf("%f\n", bestValue);
+	//ここまで正常
 	//newWhale = new Whale(this);
 }
 
@@ -50,12 +56,13 @@ Population::~Population()
 void Population::move(double aValue)
 {
 	int i, best;
-
+	
 	//すべてのクジラを移動する
 	for (i = 0; i < POP_SIZE; i++)
 	{
-		whale[i]->move(aValue);
+		whale[i]->move(aValue, i);
 	}
+	//ここまでおｋ
 
 	//最良を記録する
 	best = -1;
@@ -79,7 +86,7 @@ void Population::move(double aValue)
 //ステップごとにaを減らす
 double Population::decrease(double aValue)
 {
-	aValue -= 0.005;
+	aValue -= DECRESE;
 	if (aValue < 0)
 	{
 		aValue = 0;
@@ -88,6 +95,8 @@ double Population::decrease(double aValue)
 	return aValue;
 }
 
+//初期のループはおｋ
+//最良評価値を記録する
 void Population::saveBestPos()
 {
 	int i, best;
@@ -106,6 +115,7 @@ void Population::saveBestPos()
 		}
 		bestValue = whale[best]->value;
 	}
+
 }
 
 // 結果を表示する
