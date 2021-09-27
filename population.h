@@ -9,9 +9,6 @@ public:
 	Population(char* fileNmae);
 	~Population();
 
-//	void encircle();						//旋回する
-//	void attack();							//獲物に近づく
-//	void search();							//獲物を探す
 	void move(double aValue);				//クジラを移動
 	double decrease(double aValue);			//aのカウントを減らす
 	void saveBestPos();						//最良食料源を記録する
@@ -22,7 +19,7 @@ public:
 	Whale** whale;			//食料源の集合メンバ
 	double* bestPos;		//最良食料源の位置
 	double bestValue;		//最良食料源の評価値
-	double aValue;
+	double aValue;			//noemA(クジラの行動選択)に用いる変数，ステップごとに減少
 
 private:
 

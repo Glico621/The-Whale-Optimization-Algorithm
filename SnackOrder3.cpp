@@ -27,6 +27,7 @@ int main()
 		pop->aValue = pop->decrease(pop->aValue);
 		pop->saveBestPos();
 		printf("%d秒後：最良評価値%f\n", t, pop->bestValue);
+		printf("%f\n", pop->aValue);
 	}
 
 

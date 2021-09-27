@@ -60,7 +60,7 @@ void Population::move(double aValue)
 	//‚·‚×‚Ä‚ÌƒNƒWƒ‰‚ðˆÚ“®‚·‚é
 	for (i = 0; i < POP_SIZE; i++)
 	{
-		whale[i]->move(aValue, i);
+		whale[i]->move(aValue);
 	}
 	//‚±‚±‚Ü‚Å‚¨‚‹
 
@@ -91,7 +91,6 @@ double Population::decrease(double aValue)
 	{
 		aValue = 0;
 	}
-
 	return aValue;
 }
 

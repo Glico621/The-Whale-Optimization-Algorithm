@@ -17,10 +17,6 @@ Whale::Whale(Population* argPop)
 	int i;
 	pop = argPop;
 
-	r1 = new double[posLen];
-	r2 = new double[posLen];
-	randA = new double[posLen];
-	randC = new double[posLen];
 	normD = new double[posLen];
 	pos = new double[posLen];
 
@@ -30,7 +26,6 @@ Whale::Whale(Population* argPop)
 		pos[i] = dataset->maxAmount / dataset->snackPrice[i] * dataset->studentNum * RAND_01;
 		snackOrderNum[i] = -1;	
 	}		
-	//printf("%f\n", pos[0]);
 
 	//!このRAND01どうにかしたい
 	pos[i] = AID_MAX * RAND_01;
@@ -50,10 +45,6 @@ Whale::~Whale()
 {
 	int i;
 
-	delete[] r1;
-	delete[] r2;
-	delete[] randA;
-	delete[] randC;
 	delete[] normD;
 	delete[] pos;
 	delete[] snackOrderNum;
@@ -64,121 +55,75 @@ Whale::~Whale()
 }
 
 //クジラを移動させる
-void Whale::move(double aValue, int base)
+void Whale::move(double aValue)
 {
 	int i;
-	double normA, sum, r;
-
-	for (i = 0; i < posLen; i++)
-	{
-		pos[i] = pop->whale[base]->pos[i];
-	}
+	double normA, sum, r, hogeA, hogeC;
 
 	//01の乱数pによって旋回かそれ以外かを分岐
 	//pが0.5未満ならアタックorサーチ
 	if (RAND_01 < 0.5)
 	{
-		//r1, r2, A, C, |A|の算出
-		for (i = 0; i < dataset->snackTypeNum; i++)
-		{
-			r1[i] = RAND_01;
-			r2[i] = RAND_01;
-		}
 
-		//この乱数たち配列にしてそれぞれ値替える必要ある？
-		//どっちでやるかは要検討
+		hogeA = 2 * aValue * RAND_01 - aValue;
+		hogeC = 2 * RAND_01;
 
-		sum = 0.0;
-		for (i = 0; i < dataset->snackTypeNum; i++)
-		{	
-			//01から02にしてるかんじかな
-			randC[i] = 2 * r2[i];
-			randA[i] = 2 * aValue * r1[i] - aValue;
-			sum += randA[i] * randA[i];
-		}
-		normA = sqrt(sum);	//おｋ
-
-
-		double newC = 2 * RAND_01;
-
+		normA = sqrt(hogeA * hogeA);
 
 		//|A|が1未満ならアタック，1以上なら獲物を探索
 		if (normA < 1)
 		{
 			//アタック
-			//Dを求める
-			//normDは，iごとの距離を格納した配列
-
+			//normDは，ベストのposと現在のposとの距離を格納		
 			for (i = 0; i < dataset->snackTypeNum; i++)
 			{
 				//!ここのposおｋ
-				sum = pow((randC[i] * pop->bestPos[i] - pos[i]), 2);
-				//sum = pow((newC * pop->bestPos[i] - pos[i]), 2);
+				sum = pow((hogeC * pop->bestPos[i] - pos[i]), 2);
 				normD[i] = sqrt(sum);
+				pos[i] = pop->bestPos[i] -  hogeA * normD[i];
 			}
-
-			double r4 = RAND_01;
-			//!posがマイナスになったとき，絶対値をとるか0にするか
-			for (i = 0; i < dataset->snackTypeNum; i++)
-			{
-				//pos[i] -= ( 2 * aValue * r4 - aValue) * normD[i];
-				pos[i] -= randA[i] * normD[i];
-				//printf("こここ%f\n", pos[i]);
-			}
-			//これいる？pos[i] = AID_MAX * RAND_01;
 		}
 		else
 		{
 			//サーチ
-			//アタックと異なる点は，向かう先が最良ではなくランダムのクジラであること
-			for (i = 0; i < dataset->snackTypeNum; i++)
-			{
-				sum = 0.0;
-				sum += pow(randC[i] * pop->bestPos[i] - pos[i], 2);
-				normD[i] = sqrt(sum);
-			}
+			//アタックと異なる点：向かう先が最良ではなくランダムのクジラであること
 
+			//クジラの添え字決定（ランダム個体）
+			int	searchNum = rand() % (int)(POP_SIZE);
+			
 			for (i = 0; i < dataset->snackTypeNum; i++)
 			{
-				pos[i] -= randA[i] * normD[i];
+				sum = pow((hogeC * pop->whale[searchNum]->pos[i] - pos[i]), 2);
+				normD[i] = sqrt(sum);
+
+				pos[i] = pop->whale[searchNum]->pos[i] - hogeA * normD[i];
+
 			}
-			//pos[i] = AID_MAX * RAND_01;
 		}
 	}
 	else
 	{
 		//旋回
-		r = RAND_11;
-		sum = 0.0;
+		//ぐるぐる旋回しながら，獲物を取り囲む	
+		r = RAND_11;	//-1から1の乱数
 		for (i = 0; i < dataset->snackTypeNum; i++)
 		{
-			sum = 0.0;
-			sum += pow(pop->bestPos[i] - pos[i], 2);
+			sum = pow((pop->bestPos[i] - pos[i]), 2);
 			normD[i] = sqrt(sum);
-		}
-
-
-		for (i = 0; i < dataset->snackTypeNum; i++)
-		{
 			pos[i] = normD[i] * exp(Spiral_Coefficient * r) * cos(2.0 * PI * r) + pop->bestPos[i];
-
 		}
-		//pos[i] = AID_MAX * RAND_01;
-	}
 
+	}
 
 	evaluate();
 }
 
-//!評価値はちゃんと求められてる
 //評価値を算出する
-//argPos: 　評価対象のコウモリの位置
-//戻り値：　評価値
 void Whale::evaluate()
 {
 	int i, j, k, diff;
 	double subvalue, ave, sd, sqrSum;
-	//printf("%f\n",pos[0]);
+
 	//pos（購入数）が負数だった場合，valueを最低評価値に
 	for (j = 0; j < posLen; j++) {
 		if (pos[j] < 0) {
