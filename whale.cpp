@@ -53,35 +53,26 @@ Whale::~Whale()
 	delete[] studentList;
 }
 
-
-
 //クジラを移動させる
 void Whale::move(double aValue)
 {
-
 	int i, searchNum;
 	double normA, sum, r, hogeA, hogeC;
-	
 
 	//!変更ポイント
 	//pos入れ替えの式を，-から+に　（additionalRateの増加への対処）
 
 	//01の乱数pによって旋回かそれ以外かを分岐
 	//pが0.5未満ならアタックorサーチ
-	//RAND_01 < 0.5
 	if (RAND_01 < 0.5)
 	{
-
 		hogeA = 2 * aValue * RAND_01 - aValue;
 		hogeC = 2 * RAND_01;
 		normA = fabs(hogeA);
 
-		//printf("%f\n", normA);
-
 		//|A|が1未満ならアタック，1以上なら獲物を探索
 		if (normA < 1)
 		{
-			//printf("アタック\n");
 			//アタック
 			//normDは，ベストのposと現在のposとの距離を格納		
 			for (i = 0; i < dataset->snackTypeNum; i++)
@@ -89,80 +80,25 @@ void Whale::move(double aValue)
 				//!ここのposおｋ
 				normD[i] = fabs(hogeC * pop->bestPos[i] - pos[i]);
 				pos[i] = pop->bestPos[i] - hogeA * normD[i];
-				//pos[i] = (pop->bestPos[i] - hogeA * normD[i]) * (dataset->additionalRate + 0.7);
-				//printf("%f\n", normD[i]);
 			}
 		}
 		else
 		{
-			//printf("サーチ\n");
-			//!ここのpos問題あり
-
 			//サーチ
 			//アタックと異なる点：向かう先が最良ではなくランダムのクジラであること
 
 			//クジラの添え字決定（ランダム個体）
-
-			/*
-			while (pop->whale[searchNum]->pos[i] < 0.0)
-			{
-				searchNum = rand() % (int)(POP_SIZE);
-					
-			}		
-			*/
-
 			//予めどのクジラを目標にするかを決定
 			searchNum = rand() % (POP_SIZE);
 			for (i = 0; i < dataset->snackTypeNum; i++)
 			{
 				normD[i] = fabs(hogeC * pop->whale[searchNum]->pos[i] - pos[i]);
 				pos[i] = pop->whale[searchNum]->pos[i] - hogeA * normD[i];
-				//pos[i] = (pop->whale[searchNum]->pos[i] - hogeA * normD[i]) * (dataset->additionalRate + 1);
-
-				//↓これ追加したらnunやらinfやら乱発するんだが
-				//posが負数になると，次第に桁数が異常に増えることが判明
-				//最も負数になりやすい処理がサーチだったので，ここで対応
-				/*
-				double next;
-				next = pop->whale[searchNum]->pos[i] - hogeA * normD[i];
-				if (next >= 0)
-				{
-					pos[i] = next;
-				}
-				else
-				{
-					pos[i] = fabs(next);
-				}
-				*/
-			}
-				/*
-				pos[i] = pop->whale[searchNum]->pos[i] - hogeA * normD[i];
-				if (pos[i] < 0)
-				{
-					pos[i] = 0.0;
-				}
-				*/
-				//printf("%f\n", pos[i]);
-			
-
-				//pop->whale[searchNum]->pos[i]
-
-				/*
-				if (pop->whale[searchNum]->pos[i] > 0)
-				{
-				
-				}
-				else
-				{
-					pos[i] = pop->bestPos[i] - randA[i] * normD[i];
-				}
-				*/
-			
+			}	
 		}
 	}
 	else
 	{
-		//printf("ぐるぐるぐるぐ\n");
 		//この旋回の計算でのposに問題なしおｋ，posの負数なし
 		//旋回
 		//ぐるぐる旋回しながら，獲物を取り囲む	
@@ -172,32 +108,26 @@ void Whale::move(double aValue)
 			sum = pow((pop->bestPos[i] - pos[i]), 2);
 			normD[i] = sqrt(sum);
 			pos[i] = normD[i] * exp(Spiral_Coefficient * r) * cos(2.0 * PI * r) + pop->bestPos[i];	
-			//pos[i] = normD[i] * exp(Spiral_Coefficient * r) * cos(2.0 * PI * r) + pop->bestPos[i] * (dataset->additionalRate + 0.7);
-			//printf("%f\n", pos[i]);
 		}
-
 	}
 
-
-	//posの値がまじでおかしい
-	
+	//posの絶対値がでかくなりすぎた場合，bestPosにリセット
+	//
 	for (i = 0; i < dataset->snackTypeNum; i++)
 	{
-		//printf("%f\n", pos[i]);
-		if (fabs(pos[i]) > 1000)
+		if (fabs(pos[i]) > (dataset->studentNum * 100))
 		{
-			pos[i] = pop->bestPos[i];
+			//printf("yaaaaaaaaaaaaaaaaaaaaaaaaa\n");
+			//pos[i] = pop->bestPos[i];
+			pos[i] = pop->bestPos[i] * (RAND_01 + 0.5);
 		}
 	}
 	
-	
-	//printf("%f   %f\n", pos[i]);
+
 	for (i = 0; i < dataset->snackTypeNum; i++)
 	{
 		//pos[i] += dataset->additionalRate * pop->bestPos[i] * 10;
-		//printf("%d番目%d\n", i, (int)pos[i]);
 	}
-	//printf("\n");
 
 	evaluate();
 }
@@ -273,13 +203,5 @@ void Whale::evaluate()
 		ave /= REP_NUM;
 		sd = sqrt(sqrSum / REP_NUM - ave * ave);
 		value = ave + sd;
-
-		/*
-		if (value < 0)
-		{
-			value = WORST_VALUE;
-		}
-		*/
-		
 	}
 }
