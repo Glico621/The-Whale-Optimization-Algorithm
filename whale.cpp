@@ -20,12 +20,6 @@ Whale::Whale(Population* argPop)
 	normD = new double[posLen];
 	pos = new double[posLen];
 
-	//追加分
-	randA = new double[posLen];
-	randC = new double[posLen];
-	r1 = new double[posLen];
-	r2 = new double[posLen];
-
 	snackOrderNum = new int[dataset->snackTypeNum];
 	for (i = 0; i < dataset->snackTypeNum; i++)
 	{
@@ -50,8 +44,6 @@ Whale::~Whale()
 {
 	int i;
 
-	delete[] randA;
-	delete[] randC;
 	delete[] normD;
 	delete[] pos;
 	delete[] snackOrderNum;
@@ -68,9 +60,11 @@ void Whale::move(double aValue)
 {
 
 	int i, searchNum;
-	double normA, sum, r, hogeA, hogeC, next;
+	double normA, sum, r, hogeA, hogeC;
 	
 
+	//!変更ポイント
+	//pos入れ替えの式を，-から+に　（additionalRateの増加への対処）
 
 	//01の乱数pによって旋回かそれ以外かを分岐
 	//pが0.5未満ならアタックorサーチ
@@ -81,14 +75,6 @@ void Whale::move(double aValue)
 		hogeA = 2 * aValue * RAND_01 - aValue;
 		hogeC = 2 * RAND_01;
 		normA = fabs(hogeA);
-		
-		
-		for (i = 0; i < dataset->snackTypeNum; i++)
-		{
-			randA[i] = 2 * aValue * RAND_01 - aValue;
-			randC[i] = 2 * RAND_01;
-		}
-		
 
 		//printf("%f\n", normA);
 
@@ -101,12 +87,10 @@ void Whale::move(double aValue)
 			for (i = 0; i < dataset->snackTypeNum; i++)
 			{
 				//!ここのposおｋ
-				sum = pow((hogeC * pop->bestPos[i] - pos[i]), 2);
-				normD[i] = sqrt(sum);
-				//printf("%f\n", dataset->additionalRate * 0.1 * pos[i]);
-				//pos[i] = pop->bestPos[i] - hogeA * normD[i];
+				normD[i] = fabs(hogeC * pop->bestPos[i] - pos[i]);
 				pos[i] = pop->bestPos[i] - hogeA * normD[i];
-				//printf("%f\n", pos[i]);
+				//pos[i] = (pop->bestPos[i] - hogeA * normD[i]) * (dataset->additionalRate + 0.7);
+				//printf("%f\n", normD[i]);
 			}
 		}
 		else
@@ -131,14 +115,16 @@ void Whale::move(double aValue)
 			searchNum = rand() % (POP_SIZE);
 			for (i = 0; i < dataset->snackTypeNum; i++)
 			{
-				sum = pow((hogeC * pop->whale[searchNum]->pos[i] - pos[i]), 2);
-				normD[i] = sqrt(sum);
-				next = pop->whale[searchNum]->pos[i] - hogeA * normD[i];
-			}
+				normD[i] = fabs(hogeC * pop->whale[searchNum]->pos[i] - pos[i]);
+				pos[i] = pop->whale[searchNum]->pos[i] - hogeA * normD[i];
+				//pos[i] = (pop->whale[searchNum]->pos[i] - hogeA * normD[i]) * (dataset->additionalRate + 1);
+
 				//↓これ追加したらnunやらinfやら乱発するんだが
 				//posが負数になると，次第に桁数が異常に増えることが判明
 				//最も負数になりやすい処理がサーチだったので，ここで対応
 				/*
+				double next;
+				next = pop->whale[searchNum]->pos[i] - hogeA * normD[i];
 				if (next >= 0)
 				{
 					pos[i] = next;
@@ -148,7 +134,7 @@ void Whale::move(double aValue)
 					pos[i] = fabs(next);
 				}
 				*/
-
+			}
 				/*
 				pos[i] = pop->whale[searchNum]->pos[i] - hogeA * normD[i];
 				if (pos[i] < 0)
@@ -186,6 +172,7 @@ void Whale::move(double aValue)
 			sum = pow((pop->bestPos[i] - pos[i]), 2);
 			normD[i] = sqrt(sum);
 			pos[i] = normD[i] * exp(Spiral_Coefficient * r) * cos(2.0 * PI * r) + pop->bestPos[i];	
+			//pos[i] = normD[i] * exp(Spiral_Coefficient * r) * cos(2.0 * PI * r) + pop->bestPos[i] * (dataset->additionalRate + 0.7);
 			//printf("%f\n", pos[i]);
 		}
 
@@ -193,21 +180,22 @@ void Whale::move(double aValue)
 
 
 	//posの値がまじでおかしい
-	/*
+	
 	for (i = 0; i < dataset->snackTypeNum; i++)
 	{
-		printf("%f\n", pos[i]);
-		if (pos[i] < 0)
+		//printf("%f\n", pos[i]);
+		if (fabs(pos[i]) > 1000)
 		{
-			pos[i] = 0.0;
+			pos[i] = pop->bestPos[i];
 		}
 	}
-	*/
+	
 	
 	//printf("%f   %f\n", pos[i]);
 	for (i = 0; i < dataset->snackTypeNum; i++)
 	{
-		//printf("%d番目%f\n", i, pos[i]);
+		//pos[i] += dataset->additionalRate * pop->bestPos[i] * 10;
+		//printf("%d番目%d\n", i, (int)pos[i]);
 	}
 	//printf("\n");
 
@@ -266,8 +254,7 @@ void Whale::evaluate()
 					//お菓子の不足している分，レートをかけて損失に加算
 					//不足個数　×　お菓子の値段　×　レート
 					subvalue += diff * (int)(dataset->snackPrice[j] * dataset->additionalRate);
-				}
-				else if (diff < 0) {
+				} else if (diff < 0) {
 					//児童の注文より多く仕入れてしまった場合
 					//過分がそのまま損失に加算される
 					subvalue += -diff * dataset->snackPrice[j];

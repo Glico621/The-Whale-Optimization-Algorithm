@@ -21,9 +21,6 @@
 //-1ˆÈã1ˆÈ‰º‚Ì—”
 #define RAND_11 ((double)rand() / RAND_MAX * 2) - 1
 
-//0.2ˆÈã0.8–¢–‚Ì—”
-#define RAND_28 (((double)rand() / RAND_MAX * 6) + 2) * 0.1
-
 class Dataset
 {
 public:
