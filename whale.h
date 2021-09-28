@@ -6,13 +6,15 @@ class Population;
 
 //定数の定義
 #define TIME_MAX 100			//繰り返し数
-#define POP_SIZE 25				//クジラの個体数
-#define DECRESE 0.013			//変数aValueの減少値（前半はランダム移動，後半は獲物に向かうようになる）（aValueの移行速度）
-#define Spiral_Coefficient 	1	//対数螺旋の係数（大きいほど，大きく旋回）
+#define POP_SIZE 20				//クジラの個体数
+#define DECRESE 0.013			//変数aValueの減少値（前半はランダム移動，後半は獲物・最良に向かうようになる）（aValueの移行速度）
+#define Spiral_Coefficient 1.0	//対数螺旋の係数（大きいほど，大きく旋回）
 
 //TIME_MAX * DECREASE = 2.0  だと，終了タイミングでaValueが0になる　
 //↑ただ，2だと1程度より局所解に陥りやすい希ガス
 //小さすぎると，よさそうな場所を十分に探索できない
+//100 - 0.013
+//クジラの個体数は，30だと局所解ぎみ　　初期だと50あればほぼ3000代
 
 class Whale
 {
@@ -29,6 +31,10 @@ public:
 	double* pos;						//位置
 	double value;						//評価値
 	double* normD;						//bestと現在のpos間の距離
+	double* randA;
+	double* randC;
+	double* r1;
+	double* r2;
 
 private:
 	void evaluate();					//評価値を算出する

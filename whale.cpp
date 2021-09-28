@@ -20,13 +20,18 @@ Whale::Whale(Population* argPop)
 	normD = new double[posLen];
 	pos = new double[posLen];
 
+	//追加分
+	randA = new double[posLen];
+	randC = new double[posLen];
+	r1 = new double[posLen];
+	r2 = new double[posLen];
+
 	snackOrderNum = new int[dataset->snackTypeNum];
 	for (i = 0; i < dataset->snackTypeNum; i++)
 	{
 		pos[i] = dataset->maxAmount / dataset->snackPrice[i] * dataset->studentNum * RAND_01;
 		snackOrderNum[i] = -1;	
 	}		
-
 	//!このRAND01どうにかしたい
 	pos[i] = AID_MAX * RAND_01;
 	assortOrderNum = -1;
@@ -45,6 +50,8 @@ Whale::~Whale()
 {
 	int i;
 
+	delete[] randA;
+	delete[] randC;
 	delete[] normD;
 	delete[] pos;
 	delete[] snackOrderNum;
@@ -54,25 +61,41 @@ Whale::~Whale()
 	delete[] studentList;
 }
 
+
+
 //クジラを移動させる
 void Whale::move(double aValue)
 {
-	int i;
-	double normA, sum, r, hogeA, hogeC;
+
+	int i, searchNum;
+	double normA, sum, r, hogeA, hogeC, next;
+	
+
 
 	//01の乱数pによって旋回かそれ以外かを分岐
 	//pが0.5未満ならアタックorサーチ
+	//RAND_01 < 0.5
 	if (RAND_01 < 0.5)
 	{
 
 		hogeA = 2 * aValue * RAND_01 - aValue;
 		hogeC = 2 * RAND_01;
+		normA = fabs(hogeA);
+		
+		
+		for (i = 0; i < dataset->snackTypeNum; i++)
+		{
+			randA[i] = 2 * aValue * RAND_01 - aValue;
+			randC[i] = 2 * RAND_01;
+		}
+		
 
-		normA = sqrt(hogeA * hogeA);
+		//printf("%f\n", normA);
 
 		//|A|が1未満ならアタック，1以上なら獲物を探索
 		if (normA < 1)
 		{
+			//printf("アタック\n");
 			//アタック
 			//normDは，ベストのposと現在のposとの距離を格納		
 			for (i = 0; i < dataset->snackTypeNum; i++)
@@ -80,40 +103,113 @@ void Whale::move(double aValue)
 				//!ここのposおｋ
 				sum = pow((hogeC * pop->bestPos[i] - pos[i]), 2);
 				normD[i] = sqrt(sum);
-				pos[i] = pop->bestPos[i] -  hogeA * normD[i];
+				//printf("%f\n", dataset->additionalRate * 0.1 * pos[i]);
+				//pos[i] = pop->bestPos[i] - hogeA * normD[i];
+				pos[i] = pop->bestPos[i] - hogeA * normD[i];
+				//printf("%f\n", pos[i]);
 			}
 		}
 		else
 		{
+			//printf("サーチ\n");
+			//!ここのpos問題あり
+
 			//サーチ
 			//アタックと異なる点：向かう先が最良ではなくランダムのクジラであること
 
 			//クジラの添え字決定（ランダム個体）
-			int	searchNum = rand() % (int)(POP_SIZE);
-			
+
+			/*
+			while (pop->whale[searchNum]->pos[i] < 0.0)
+			{
+				searchNum = rand() % (int)(POP_SIZE);
+					
+			}		
+			*/
+
+			//予めどのクジラを目標にするかを決定
+			searchNum = rand() % (POP_SIZE);
 			for (i = 0; i < dataset->snackTypeNum; i++)
 			{
 				sum = pow((hogeC * pop->whale[searchNum]->pos[i] - pos[i]), 2);
 				normD[i] = sqrt(sum);
-
-				pos[i] = pop->whale[searchNum]->pos[i] - hogeA * normD[i];
-
+				next = pop->whale[searchNum]->pos[i] - hogeA * normD[i];
 			}
+				//↓これ追加したらnunやらinfやら乱発するんだが
+				//posが負数になると，次第に桁数が異常に増えることが判明
+				//最も負数になりやすい処理がサーチだったので，ここで対応
+				/*
+				if (next >= 0)
+				{
+					pos[i] = next;
+				}
+				else
+				{
+					pos[i] = fabs(next);
+				}
+				*/
+
+				/*
+				pos[i] = pop->whale[searchNum]->pos[i] - hogeA * normD[i];
+				if (pos[i] < 0)
+				{
+					pos[i] = 0.0;
+				}
+				*/
+				//printf("%f\n", pos[i]);
+			
+
+				//pop->whale[searchNum]->pos[i]
+
+				/*
+				if (pop->whale[searchNum]->pos[i] > 0)
+				{
+				
+				}
+				else
+				{
+					pos[i] = pop->bestPos[i] - randA[i] * normD[i];
+				}
+				*/
+			
 		}
 	}
 	else
 	{
+		//printf("ぐるぐるぐるぐ\n");
+		//この旋回の計算でのposに問題なしおｋ，posの負数なし
 		//旋回
 		//ぐるぐる旋回しながら，獲物を取り囲む	
-		r = RAND_11;	//-1から1の乱数
+		r = RAND_11;	//-1から1の乱数 
 		for (i = 0; i < dataset->snackTypeNum; i++)
 		{
 			sum = pow((pop->bestPos[i] - pos[i]), 2);
 			normD[i] = sqrt(sum);
-			pos[i] = normD[i] * exp(Spiral_Coefficient * r) * cos(2.0 * PI * r) + pop->bestPos[i];
+			pos[i] = normD[i] * exp(Spiral_Coefficient * r) * cos(2.0 * PI * r) + pop->bestPos[i];	
+			//printf("%f\n", pos[i]);
 		}
 
 	}
+
+
+	//posの値がまじでおかしい
+	/*
+	for (i = 0; i < dataset->snackTypeNum; i++)
+	{
+		printf("%f\n", pos[i]);
+		if (pos[i] < 0)
+		{
+			pos[i] = 0.0;
+		}
+	}
+	*/
+	
+	//printf("%f   %f\n", pos[i]);
+	for (i = 0; i < dataset->snackTypeNum; i++)
+	{
+		//printf("%d番目%f\n", i, pos[i]);
+	}
+	//printf("\n");
 
 	evaluate();
 }
@@ -164,6 +260,7 @@ void Whale::evaluate()
 			//お菓子の種類ごとに損失を計算
 			for (j = 0; j < dataset->snackTypeNum; j++) {
 				//diff:子供が注文した個数と，注文数の差		
+				//printf("%f\n", pos[j]);
 				diff = snackOrderNum[j] - (int)pos[j];
 				if (diff > 0) {
 					//お菓子の不足している分，レートをかけて損失に加算
@@ -189,5 +286,13 @@ void Whale::evaluate()
 		ave /= REP_NUM;
 		sd = sqrt(sqrSum / REP_NUM - ave * ave);
 		value = ave + sd;
+
+		/*
+		if (value < 0)
+		{
+			value = WORST_VALUE;
+		}
+		*/
+		
 	}
 }

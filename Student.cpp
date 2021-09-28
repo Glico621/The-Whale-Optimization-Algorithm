@@ -35,7 +35,6 @@ void Student::setSnackNum(int assortPrice)
 	else
 	   assortOrderNum = 0;//買わない
 
-	//上でsnackOrderNum[i] = -1;の初期化してるのにここで０にしてるのなんで？
 	for(i = 0; i < dataset->snackTypeNum; i++) {
 		snackOrderNum[i] = 0;
 	}
@@ -49,13 +48,13 @@ void Student::setSnackNum(int assortPrice)
 			listNum = 0;
 			//forループ　お菓子の種類
 			//if　　　　　residueでそのお菓子が買えれば　snackListにお菓子のナンバーを記録
-			for(i = 0; i < dataset->snackTypeNum; i++) {
-				if(dataset->snackPrice[i] <= residue) {
+			for (i = 0; i < dataset->snackTypeNum; i++) {
+				if (dataset->snackPrice[i] <= residue) {
 					snackList[listNum++] = i;
 				}
 			}
 			//買えるお菓子が無ければ終了
-			if(listNum == 0) {
+			if (listNum == 0) {
 				break;
 			}
 
@@ -63,8 +62,8 @@ void Student::setSnackNum(int assortPrice)
 			//残額で買えるお菓子のうち，ランダムでいずれか一つの購入を決定
 			//残額からそのお菓子の値段を引く
 			select = rand() % listNum;
-			snackOrderNum[select]++;
-			residue -= dataset->snackPrice[select];
+			snackOrderNum[snackList[select]]++;
+			residue -= dataset->snackPrice[snackList[select]];
 		} while(residue > 0);
 	}
 }

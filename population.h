@@ -11,7 +11,7 @@ public:
 
 	void move(double aValue);				//クジラを移動
 	double decrease(double aValue);			//aのカウントを減らす
-	void saveBestPos();						//最良食料源を記録する
+	//void saveBestPos();						//最良食料源を記録する
 	void printResult(char* fileName);		//結果を表示する
 
 
