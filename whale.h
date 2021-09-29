@@ -7,7 +7,7 @@ class Population;
 //定数の定義
 #define TIME_MAX 200			//繰り返し数
 #define POP_SIZE 40				//クジラの個体数
-#define DECRESE 0.001			//変数aValueの減少値（前半はランダム移動，後半は獲物・最良に向かうようになる）（aValueの移行速度）
+#define DECRESE 0.002			//変数aValueの減少値（前半はランダム移動，後半は獲物・最良に向かうようになる）（aValueの移行速度）
 #define Spiral_Coefficient 1.0	//対数螺旋の係数（大きいほど，大きく旋回）
 
 //TIME_MAX * DECREASE = 2.0  だと，終了タイミングでaValueが0になる　

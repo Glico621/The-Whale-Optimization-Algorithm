@@ -4,12 +4,6 @@
 int Whale::posLen = -1;
 Dataset* Whale::dataset = NULL;
 
-//コンストラクタとリニューを，アディショナルレートの高さで分岐 アディショナルレート１だと，追加注文と一緒
-//それ以上，それ以下で分岐するといいかも
-
-//最初のmove()からevaluate()へのposの受け渡し◎
-//コンストラクタは恐らく大丈夫
-
 //コンストラクタ
 //argPop: 属しているクジラ群
 Whale::Whale(Population* argPop)
@@ -26,7 +20,6 @@ Whale::Whale(Population* argPop)
 		pos[i] = dataset->maxAmount / dataset->snackPrice[i] * dataset->studentNum * RAND_01;
 		snackOrderNum[i] = -1;	
 	}		
-	//!このRAND01どうにかしたい
 	pos[i] = AID_MAX * RAND_01;
 	assortOrderNum = -1;
 
@@ -53,16 +46,14 @@ Whale::~Whale()
 	delete[] studentList;
 }
 
-//クジラを移動させる
+//クジラをどの方法で移動させるか決め，移動させる
+//アタック，サーチ，旋回の3種類
 void Whale::move(double aValue)
 {
 	int i, searchNum;
 	double normA, sum, r, hogeA, hogeC;
 
-	//!変更ポイント
-	//pos入れ替えの式を，-から+に　（additionalRateの増加への対処）
-
-	//01の乱数pによって旋回かそれ以外かを分岐
+	//0から1の乱数，normAによってクジラの行動を選択
 	//pが0.5未満ならアタックorサーチ
 	if (RAND_01 < 0.5)
 	{
@@ -111,22 +102,13 @@ void Whale::move(double aValue)
 		}
 	}
 
-	//posの絶対値がでかくなりすぎた場合，bestPosにリセット
-	//
+	//posの絶対値がでかくなりすぎた場合，bestPos付近にリセット
 	for (i = 0; i < dataset->snackTypeNum; i++)
 	{
 		if (fabs(pos[i]) > (dataset->studentNum * 100))
 		{
-			//printf("yaaaaaaaaaaaaaaaaaaaaaaaaa\n");
-			//pos[i] = pop->bestPos[i];
-			pos[i] = pop->bestPos[i] * (RAND_01 + 0.5);
+			pos[i] = pop->bestPos[i] * (RAND_01 + 0.6);
 		}
-	}
-	
-
-	for (i = 0; i < dataset->snackTypeNum; i++)
-	{
-		//pos[i] += dataset->additionalRate * pop->bestPos[i] * 10;
 	}
 
 	evaluate();

@@ -45,10 +45,10 @@ Population::~Population()
 	delete dataset;
 }
 
-//クジラをどの方法で移動させるか決定する
+//クジラを個体ごとに移動，最良を記録
 void Population::move(double aValue)
 {
-	int i, best, check;
+	int i, best;
 	
 	//すべてのクジラを移動する
 	for (i = 0; i < POP_SIZE; i++)
@@ -82,6 +82,8 @@ void Population::move(double aValue)
 }
 
 //ステップごとにaを減らす
+//aが大きければ，クジラはランダムに動きやすくなる　　　　　　　→サーチ
+//aが小さければ，クジラは食料（最良）付近に向かいやすくなる　　→アタック
 double Population::decrease(double aValue)
 {
 	aValue -= DECRESE;
@@ -100,7 +102,6 @@ void Population::printResult(char* fileName)
 	int i;
 
 	// 書込み
-	//エラー
 	if ((fp = fopen(fileName, "w")) == NULL) {
 		printf("ファイル%sが開けません．\n", fileName);
 		exit(-1);
