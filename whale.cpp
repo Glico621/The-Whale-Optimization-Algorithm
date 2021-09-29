@@ -61,14 +61,13 @@ void Whale::move(double aValue)
 		hogeC = 2 * RAND_01;
 		normA = fabs(hogeA);
 
-		//|A|が1未満ならアタック，1以上なら獲物を探索
+		//ベクトルAの長さが1未満ならアタック，1以上なら獲物を探索
 		if (normA < 1)
 		{
 			//アタック
 			//normDは，ベストのposと現在のposとの距離を格納		
 			for (i = 0; i < dataset->snackTypeNum; i++)
 			{
-				//!ここのposおｋ
 				normD[i] = fabs(hogeC * pop->bestPos[i] - pos[i]);
 				pos[i] = pop->bestPos[i] - hogeA * normD[i];
 			}
@@ -77,8 +76,6 @@ void Whale::move(double aValue)
 		{
 			//サーチ
 			//アタックと異なる点：向かう先が最良ではなくランダムのクジラであること
-
-			//クジラの添え字決定（ランダム個体）
 			//予めどのクジラを目標にするかを決定
 			searchNum = rand() % (POP_SIZE);
 			for (i = 0; i < dataset->snackTypeNum; i++)
@@ -90,7 +87,6 @@ void Whale::move(double aValue)
 	}
 	else
 	{
-		//この旋回の計算でのposに問題なしおｋ，posの負数なし
 		//旋回
 		//ぐるぐる旋回しながら，獲物を取り囲む	
 		r = RAND_11;	//-1から1の乱数 
@@ -98,10 +94,10 @@ void Whale::move(double aValue)
 		{
 			sum = pow((pop->bestPos[i] - pos[i]), 2);
 			normD[i] = sqrt(sum);
-			pos[i] = normD[i] * exp(Spiral_Coefficient * r) * cos(2.0 * PI * r) + pop->bestPos[i];	
+			pos[i] = normD[i] * exp(Spiral_Coefficient * r) * cos(2.0 * PI * r) + pop->bestPos[i];
 		}
 	}
-
+	
 	//posの絶対値がでかくなりすぎた場合，bestPos付近にリセット
 	for (i = 0; i < dataset->snackTypeNum; i++)
 	{

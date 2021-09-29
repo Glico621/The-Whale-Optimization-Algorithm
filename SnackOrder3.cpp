@@ -21,8 +21,9 @@ int main()
 		//ステップごとにaを減少させる
 		pop->aValue = pop->decrease(pop->aValue);
 		printf("%d回目：最良評価値%f\n", t, pop->bestValue);
-	}
 
+	}
+	
 	//お菓子ごとの個数，最大補助をresult.csvに書き込む
 	pop->printResult(resultFname);
 	delete pop;

@@ -10,10 +10,6 @@ class Population;
 #define DECRESE 0.002			//変数aValueの減少値（前半はランダム移動，後半は獲物・最良に向かうようになる）（aValueの移行速度）
 #define Spiral_Coefficient 1.0	//対数螺旋の係数（大きいほど，大きく旋回）
 
-//TIME_MAX * DECREASE = 2.0  だと，終了タイミングでaValueが0になる　
-//↑局所解に陥りやすすぎるから，終盤までランダム移動の割合を一定数保っておく方針
-//200 - 0.0001 40匹
-//クジラの個体数は，30だと局所解ぎみ　　初期だと50あればほぼ3000代
 
 class Whale
 {

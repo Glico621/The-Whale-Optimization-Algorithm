@@ -1,7 +1,9 @@
-﻿  Whale.cpp
+﻿  Population.cpp
+  SnackOrder3.cpp
+  Whale.cpp
   コード生成しています。
-  2 of 29 functions ( 6.9%) were compiled, the rest were copied from previous compilation.
+  0 of 29 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
+    0 functions had inline decision re-evaluated but remain unchanged
   コード生成が終了しました。
   SnackOrder3.vcxproj -> Z:\事例研\SnackOrder3\Release\SnackOrder3.exe
